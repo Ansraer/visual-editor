@@ -113,6 +113,7 @@ class EditorController {
     this.onSelectionChanged,
   }) {
     _state.document.setDocument(document);
+    _state.highlights.setHighlights(highlights);
   }
 
   factory EditorController.basic() => EditorController(
@@ -126,43 +127,7 @@ class EditorController {
     receiver.setState(_state);
   }
 
-  // Only attributes applied to all characters within this range are included in the result.
-  StyleM getSelectionStyle() => document
-      .collectStyle(
-        selection.start,
-        selection.end - selection.start,
-      )
-      .mergeAll(toggledStyle);
-
-  // Returns all styles for each node within selection
-  List<PasteStyleM> getAllIndividualSelectionStyles() {
-    final styles = document.collectAllIndividualStyles(
-      selection.start,
-      selection.end - selection.start,
-    );
-
-    return styles;
-  }
-
-  // Returns plain text for each node within selection
-  String getPlainText() {
-    final text = document.getPlainText(
-      selection.start,
-      selection.end - selection.start,
-    );
-
-    return text;
-  }
-
-  // Returns all styles for any character within the specified text range.
-  List<StyleM> getAllSelectionStyles() {
-    final styles = document.collectAllStyles(
-      selection.start,
-      selection.end - selection.start,
-    )..add(toggledStyle);
-
-    return styles;
-  }
+  // === HISTORY ===
 
   void undo() {
     final tup = document.undo();
@@ -178,6 +143,18 @@ class EditorController {
     if (tup.applyChanges) {
       _handleHistoryChange(tup.offset);
     }
+  }
+
+  // === DOCUMENT ===
+
+  // Returns plain text for each node within selection
+  String getPlainText() {
+    final text = document.getPlainText(
+      selection.start,
+      selection.end - selection.start,
+    );
+
+    return text;
   }
 
   // Update editor with a new document
@@ -285,6 +262,33 @@ class EditorController {
     ignoreFocusOnTextChange = false;
   }
 
+  void compose(
+    DeltaM delta,
+    TextSelection textSelection,
+    ChangeSource source,
+  ) {
+    if (delta.isNotEmpty) {
+      document.compose(delta, source);
+    }
+
+    textSelection = selection.copyWith(
+      baseOffset: delta.transformPosition(
+        selection.baseOffset,
+        force: false,
+      ),
+      extentOffset: delta.transformPosition(
+        selection.extentOffset,
+        force: false,
+      ),
+    );
+
+    if (selection != textSelection) {
+      _updateSelection(textSelection, source);
+    }
+
+    _state.refreshEditor.refreshEditor();
+  }
+
   // Called in two cases:
   // forward == false && textBefore.isEmpty
   // forward == true && textAfter.isEmpty
@@ -292,6 +296,8 @@ class EditorController {
   // See https://github.com/singerdmx/flutter-quill/discussions/514
   void handleDelete(int cursorPosition, bool forward) =>
       onDelete?.call(cursorPosition, forward);
+
+  // === TEXT STYLES ===
 
   void formatTextStyle(int index, int len, StyleM style) {
     style.attributes.forEach((key, attr) {
@@ -331,6 +337,7 @@ class EditorController {
     _state.refreshEditor.refreshEditor();
   }
 
+  // Applies an attribute to a selection of text
   void formatSelection(AttributeM? attribute) {
     formatText(
       selection.start,
@@ -339,16 +346,50 @@ class EditorController {
     );
   }
 
+  // Only attributes applied to all characters within this range are included in the result.
+  StyleM getSelectionStyle() => document
+      .collectStyle(
+        selection.start,
+        selection.end - selection.start,
+      )
+      .mergeAll(toggledStyle);
+
+  // Returns all styles for each node within selection
+  List<PasteStyleM> getAllIndividualSelectionStyles() {
+    final styles = document.collectAllIndividualStyles(
+      selection.start,
+      selection.end - selection.start,
+    );
+
+    return styles;
+  }
+
+  // Returns all styles for any character within the specified text range.
+  List<StyleM> getAllSelectionStyles() {
+    final styles = document.collectAllStyles(
+      selection.start,
+      selection.end - selection.start,
+    )..add(toggledStyle);
+
+    return styles;
+  }
+
+  // === CURSOR ===
+
   void moveCursorToStart() {
     updateSelection(
-      const TextSelection.collapsed(offset: 0),
+      const TextSelection.collapsed(
+        offset: 0,
+      ),
       ChangeSource.LOCAL,
     );
   }
 
   void moveCursorToPosition(int position) {
     updateSelection(
-      TextSelection.collapsed(offset: position),
+      TextSelection.collapsed(
+        offset: position,
+      ),
       ChangeSource.LOCAL,
     );
   }
@@ -362,6 +403,8 @@ class EditorController {
     );
   }
 
+  // === SELECTION ===
+
   void updateSelection(
     TextSelection textSelection,
     ChangeSource source,
@@ -370,36 +413,28 @@ class EditorController {
     _state.refreshEditor.refreshEditor();
   }
 
-  void compose(
-    DeltaM delta,
-    TextSelection textSelection,
-    ChangeSource source,
-  ) {
-    if (delta.isNotEmpty) {
-      document.compose(delta, source);
-    }
-
-    textSelection = selection.copyWith(
-      baseOffset: delta.transformPosition(
-        selection.baseOffset,
-        force: false,
-      ),
-      extentOffset: delta.transformPosition(
-        selection.extentOffset,
-        force: false,
-      ),
-    );
-
-    if (selection != textSelection) {
-      _updateSelection(textSelection, source);
-    }
-
-    _state.refreshEditor.refreshEditor();
-  }
+  // === NODES ===
 
   // Given offset, find its leaf node in document
   LeafM? queryNode(int offset) {
     return document.querySegmentLeafNode(offset).leaf;
+  }
+
+  // === HIGHLIGHTS ===
+
+  void addHighlight(HighlightM highlight) {
+    return _state.highlights.addHighlight(highlight);
+    _state.refreshEditor.refreshEditor();
+  }
+
+  void removeHighlight(HighlightM highlight) {
+    return _state.highlights.removeHighlight(highlight);
+    _state.refreshEditor.refreshEditor();
+  }
+
+  void removeAllHighlights(HighlightM highlight) {
+    return _state.highlights.removeAllHighlights();
+    _state.refreshEditor.refreshEditor();
   }
 
   // === PRIVATE ===

@@ -21,4 +21,12 @@ const List<NavMenuLinkM> NAV_MENU = [
     title: 'Placeholder',
     route: '/placeholder',
   ),
+  NavMenuLinkM(
+    title: 'Highlights',
+    route: '/highlights',
+  ),
+  NavMenuLinkM(
+    title: 'Markers',
+    route: '/markers',
+  ),
 ];

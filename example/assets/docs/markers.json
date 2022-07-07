@@ -1,0 +1,12 @@
+[
+  {
+    "insert": "Lorem\n",
+    "attributes": {
+      "bold": true,
+      "marker": {
+        "type": "expert",
+        "id": "b53d8d53"
+      }
+    }
+  }
+]

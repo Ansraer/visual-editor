@@ -5,17 +5,24 @@ import 'package:quiver/core.dart';
 import 'attribute-scope.enum.dart';
 import 'styling-attributes.dart';
 
+// Attributes defined the characteristics of text.
+// The delta document stores attributes for each operation.
 class AttributeM<T> {
+  final String key;
+  final AttributeScope scope;
+  final T value;
+
+  bool get isInline => scope == AttributeScope.INLINE;
+
+  bool get isBlockExceptHeader => blockKeysExceptHeader.contains(key);
+
   AttributeM(
     this.key,
     this.scope,
     this.value,
   );
 
-  /// Unique key of this attribute.
-  final String key;
-  final AttributeScope scope;
-  final T value;
+  // === REGISTRY ===
 
   static final Map<String, AttributeM> _registry = LinkedHashMap.of({
     AttributeM.bold.key: AttributeM.bold,
@@ -30,6 +37,7 @@ class AttributeM<T> {
     AttributeM.color.key: AttributeM.color,
     AttributeM.background.key: AttributeM.background,
     AttributeM.placeholder.key: AttributeM.placeholder,
+    AttributeM.marker.key: AttributeM.marker,
     AttributeM.header.key: AttributeM.header,
     AttributeM.align.key: AttributeM.align,
     AttributeM.direction.key: AttributeM.direction,
@@ -44,6 +52,8 @@ class AttributeM<T> {
     AttributeM.script.key: AttributeM.script,
   });
 
+  // === ATTRIBUTES ===
+
   static final BoldAttributeM bold = BoldAttributeM();
 
   static final ItalicAttributeM italic = ItalicAttributeM();
@@ -52,7 +62,8 @@ class AttributeM<T> {
 
   static final UnderlineAttributeM underline = UnderlineAttributeM();
 
-  static final StrikeThroughAttributeM strikeThrough = StrikeThroughAttributeM();
+  static final StrikeThroughAttributeM strikeThrough =
+      StrikeThroughAttributeM();
 
   static final InlineCodeAttributeM inlineCode = InlineCodeAttributeM();
 
@@ -67,6 +78,8 @@ class AttributeM<T> {
   static final BackgroundAttributeM background = BackgroundAttributeM(null);
 
   static final PlaceholderAttributeM placeholder = PlaceholderAttributeM();
+
+  static final MarkerAttributeM marker = MarkerAttributeM(null);
 
   static final HeaderAttributeM header = HeaderAttributeM();
 
@@ -100,6 +113,8 @@ class AttributeM<T> {
 
   static const String mobileAlignment = 'mobileAlignment';
 
+  // === TYPES ===
+
   static final Set<String> inlineKeys = {
     AttributeM.bold.key,
     AttributeM.italic.key,
@@ -110,6 +125,7 @@ class AttributeM<T> {
     AttributeM.color.key,
     AttributeM.background.key,
     AttributeM.placeholder.key,
+    AttributeM.marker.key,
   };
 
   static final Set<String> blockKeys = LinkedHashSet.of({
@@ -137,6 +153,8 @@ class AttributeM<T> {
     AttributeM.codeBlock.key,
     AttributeM.blockQuote.key,
   });
+
+  // === ALIASES ===
 
   static AttributeM<int?> get h1 => HeaderAttributeM(level: 1);
 
@@ -180,6 +198,8 @@ class AttributeM<T> {
   // "attributes":{"indent":3"}
   static AttributeM<int?> get indentL3 => IndentAttributeM(level: 3);
 
+  // === UTILS ===
+
   static AttributeM<int?> getIndentLevel(int? level) {
     if (level == 1) {
       return indentL1;
@@ -195,10 +215,6 @@ class AttributeM<T> {
 
     return IndentAttributeM(level: level);
   }
-
-  bool get isInline => scope == AttributeScope.INLINE;
-
-  bool get isBlockExceptHeader => blockKeysExceptHeader.contains(key);
 
   Map<String, dynamic> toJson() => <String, dynamic>{key: value};
 
