@@ -108,10 +108,11 @@ _controller.document.toPlainText(); // Extract plain text
     </tr>
 </table>
 
-## Tips
+## Demos & Code Samples
+In this repository you can also find a demo app with various pages that showcase all sorts of configurations for the editor. One particularly useful page is the "Delta Sandbox" page. In this page you can see side by side a live editor and a json preview panel. This demo will help you to quickly learn how the Delta format works. 
 
-* To have a more efficient search (CTRL + SHIFT + F) is recommended to exclude `/ios` and `/android` files from the search
-   - rightClick on folder -> Mark as -> Excluded
+- You can start the demo app by running main.dart in Android Studio.
+- Soon we will have a website with the same demo pages so you don't have to run the samples locally.
 
 ## Documentation
 Learn more about Visual Editor architecture and how to use the features.
@@ -127,6 +128,7 @@ Learn more about Visual Editor architecture and how to use the features.
 - **[Rules (WIP)](https://github.com/visual-space/visual-editor/blob/develop/lib/rules/rules.md)** - Rules execute behavior when certain condition are met.
 - **[Selection (WIP)](https://github.com/visual-space/visual-editor/blob/develop/lib/selection/selection.md)** - Rules execute behavior when certain condition are met.
 - **[Highlights](https://github.com/visual-space/visual-editor/blob/develop/lib/highlights/highlights.md)** - Renders temporary text markers sensitive to taps.
+- **[Performance](https://github.com/visual-space/visual-editor/blob/develop/PERFORMANCE.md)** - Basic tips to follow in order to maintain the editor's performance.
 - **[Migration](https://github.com/visual-space/visual-editor/blob/develop/MIGRATING.md)** - A simple guide with instructions to migrate from Flutter Quill.
   
 **For Contributors:**
@@ -154,7 +156,7 @@ These features are currently under developed for [Visual Space]. As soon as they
 - **[Emoji Picker](https://github.com/visual-space/visual-editor/issues/39)** 
 - **Custom emoji**
 - **Selection menu styling** - Displays a popup menu above selected text for quick common styling actions.
-- **Custom selection menu** - Enables developers to add extra buttons in teh quick actions menu.
+- **Custom selection menu** - Enables developers to add extra buttons in the quick actions menu.
 
 ## Who is using Visual Editor?
 
